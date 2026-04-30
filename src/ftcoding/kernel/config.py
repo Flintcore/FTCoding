@@ -43,6 +43,7 @@ class Config(BaseModel):
             "llm_provider": self.llm_provider,
             "llm_model": self.llm_model,
             "llm_api_base": self.llm_api_base,
+            "llm_api_key": self.llm_api_key,
             "vector_db_path": self.vector_db_path,
             "memory_db_path": self.memory_db_path,
             "max_file_size_kb": self.max_file_size_kb,
