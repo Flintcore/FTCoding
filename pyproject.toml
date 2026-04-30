@@ -1,0 +1,78 @@
+[tool.poetry]
+name = "ftcoding"
+version = "0.1.0"
+description = "中国开发者的本地Coding Agent - 数据不出网，越用越懂你的项目"
+authors = ["Flintcore <your@email.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+homepage = "https://github.com/Flintcore/FTCoding"
+repository = "https://github.com/Flintcore/FTCoding"
+keywords = ["coding-agent", "local-first", "developer-tools", "ai", "privacy"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Tools",
+]
+packages = [{include = "ftcoding", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+click = "^8.1.0"
+rich = "^13.0.0"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+websockets = "^12.0"
+tree-sitter = "^0.20.0"
+tree-sitter-python = "^0.20.0"
+tree-sitter-javascript = "^0.20.0"
+tree-sitter-typescript = "^0.20.0"
+tree-sitter-go = "^0.20.0"
+tree-sitter-rust = "^0.20.0"
+tree-sitter-java = "^0.20.0"
+chromadb = "^0.4.0"
+sentence-transformers = "^2.2.0"
+litellm = "^1.0.0"
+apscheduler = "^3.10.0"
+pydantic = "^2.0.0"
+pydantic-settings = "^2.0.0"
+watchdog = "^3.0.0"
+pyyaml = "^6.0.0"
+aiohttp = "^3.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.0"
+pytest-cov = "^4.1.0"
+black = "^24.0.0"
+ruff = "^0.2.0"
+mypy = "^1.8.0"
+
+[tool.poetry.scripts]
+ftcoding = "ftcoding.cli.main:main"
+ftcoding-cron = "ftcoding.self_iterate:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--cov=ftcoding --cov-report=term-missing --cov-fail-under=80"
