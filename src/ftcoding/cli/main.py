@@ -54,10 +54,12 @@ async def interactive_mode(project_root: str | None, config_path: str | None):
         from ftcoding.plugins.code_insight.plugin import CodeInsightPlugin
         from ftcoding.plugins.code_editor.plugin import CodeEditorPlugin
         from ftcoding.plugins.execution_env.plugin import ExecutionEnvPlugin
+        from ftcoding.plugins.git_workflow.plugin import GitWorkflowPlugin
 
         kernel.plugin_manager.register(CodeInsightPlugin())
         kernel.plugin_manager.register(CodeEditorPlugin())
         kernel.plugin_manager.register(ExecutionEnvPlugin())
+        kernel.plugin_manager.register(GitWorkflowPlugin())
         await kernel.plugin_manager.initialize_all()
 
         console.print(f"[green]Plugins loaded: {kernel.plugin_manager.list_plugins()}[/green]\n")
@@ -105,6 +107,10 @@ async def interactive_mode(project_root: str | None, config_path: str | None):
                     await handle_test(kernel, user_input)
                     continue
 
+                if user_input.startswith("/git"):
+                    await handle_git(kernel, user_input)
+                    continue
+
                 await handle_query(kernel, user_input)
 
             except KeyboardInterrupt:
@@ -132,6 +138,11 @@ def show_help():
         ("/edit <file>", "Edit a file (interactive)"),
         ("/run <command>", "Run a command safely"),
         ("/test [path]", "Run tests"),
+        ("/git status", "Show git status"),
+        ("/git diff", "Show git diff"),
+        ("/git log [n]", "Show git log (last n commits)"),
+        ("/git commit <msg>", "Commit changes"),
+        ("/git branch", "List branches"),
         ("/exit", "Exit FTcoding"),
         ("<natural language>", "Ask FTcoding anything"),
     ]
@@ -287,6 +298,80 @@ async def handle_test(kernel: Kernel, cmd: str):
             console.print(result["stdout"])
         if result.get("stderr"):
             console.print(f"[yellow]{result['stderr']}[/yellow]")
+
+
+async def handle_git(kernel: Kernel, cmd: str):
+    """Handle /git command."""
+    parts = cmd.split(maxsplit=2)
+    if len(parts) < 2:
+        console.print("[red]Usage: /git status|diff|log|commit <msg>|branch[/red]")
+        return
+
+    subcmd = parts[1].lower()
+
+    if subcmd == "status":
+        result = await kernel.send_command("git_workflow", "status", {})
+        if result.get("success"):
+            console.print(f"[cyan]Branch:[/cyan] {result.get('branch', 'unknown')}")
+            files = result.get("files", {})
+            for status, items in files.items():
+                if items:
+                    console.print(f"[yellow]{status}:[/yellow] {', '.join(items)}")
+        else:
+            console.print(f"[red]Error: {result.get('error')}[/red]")
+
+    elif subcmd == "diff":
+        with console.status("[yellow]Getting diff...[/yellow]"):
+            result = await kernel.send_command("git_workflow", "diff", {})
+        if result.get("success"):
+            if result.get("diff"):
+                console.print(result["diff"])
+            else:
+                console.print("[dim]No changes[/dim]")
+        else:
+            console.print(f"[red]Error: {result.get('error')}[/red]")
+
+    elif subcmd == "log":
+        limit = int(parts[2]) if len(parts) > 2 else 10
+        result = await kernel.send_command("git_workflow", "log", {"limit": limit})
+        if result.get("success"):
+            table = Table(title=f"Git Log (last {limit})")
+            table.add_column("Hash", style="cyan")
+            table.add_column("Date")
+            table.add_column("Author")
+            table.add_column("Message")
+            for c in result.get("commits", []):
+                table.add_row(c["hash"], c["date"], c["author"], c["message"])
+            console.print(table)
+        else:
+            console.print(f"[red]Error: {result.get('error')}[/red]")
+
+    elif subcmd == "commit":
+        if len(parts) < 3:
+            console.print("[red]Usage: /git commit <message>[/red]")
+            return
+        message = parts[2]
+        with console.status("[yellow]Committing...[/yellow]"):
+            result = await kernel.send_command("git_workflow", "commit", {
+                "message": message,
+                "all": True
+            })
+        if result.get("success"):
+            console.print(f"[green]Committed: {message}[/green]")
+        else:
+            console.print(f"[red]Error: {result.get('error')}[/red]")
+
+    elif subcmd == "branch":
+        result = await kernel.send_command("git_workflow", "branch_list", {})
+        if result.get("success"):
+            for b in result.get("branches", []):
+                marker = "* " if b["current"] else "  "
+                console.print(f"{marker}[cyan]{b['name']}[/cyan]")
+        else:
+            console.print(f"[red]Error: {result.get('error')}[/red]")
+
+    else:
+        console.print(f"[red]Unknown git command: {subcmd}[/red]")
 
 
 async def handle_query(kernel: Kernel, query: str):
