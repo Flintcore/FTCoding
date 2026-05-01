@@ -60,7 +60,7 @@ class CronEngine:
         """Run daily health check."""
         print(f"[{datetime.now()}] Running daily health check...")
 
-        health = self.kernel.health()
+        health = await self.kernel.health()
         status_file = ".ftcoding/health.log"
 
         with open(status_file, "a", encoding="utf-8") as f:
