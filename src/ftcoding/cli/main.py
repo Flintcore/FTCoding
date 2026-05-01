@@ -55,11 +55,13 @@ async def interactive_mode(project_root: str | None, config_path: str | None):
         from ftcoding.plugins.code_editor.plugin import CodeEditorPlugin
         from ftcoding.plugins.execution_env.plugin import ExecutionEnvPlugin
         from ftcoding.plugins.git_workflow.plugin import GitWorkflowPlugin
+        from ftcoding.plugins.code_generator.plugin import CodeGeneratorPlugin
 
         kernel.plugin_manager.register(CodeInsightPlugin())
         kernel.plugin_manager.register(CodeEditorPlugin())
         kernel.plugin_manager.register(ExecutionEnvPlugin())
         kernel.plugin_manager.register(GitWorkflowPlugin())
+        kernel.plugin_manager.register(CodeGeneratorPlugin())
         await kernel.plugin_manager.initialize_all()
 
         console.print(f"[green]Plugins loaded: {kernel.plugin_manager.list_plugins()}[/green]\n")

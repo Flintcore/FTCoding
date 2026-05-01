@@ -11,6 +11,7 @@ from ftcoding.plugins.code_insight.plugin import CodeInsightPlugin
 from ftcoding.plugins.code_editor.plugin import CodeEditorPlugin
 from ftcoding.plugins.execution_env.plugin import ExecutionEnvPlugin
 from ftcoding.plugins.git_workflow.plugin import GitWorkflowPlugin
+from ftcoding.plugins.code_generator.plugin import CodeGeneratorPlugin
 
 
 kernel: Kernel | None = None
@@ -28,6 +29,7 @@ async def lifespan(app: FastAPI):
     kernel.plugin_manager.register(CodeEditorPlugin())
     kernel.plugin_manager.register(ExecutionEnvPlugin())
     kernel.plugin_manager.register(GitWorkflowPlugin())
+    kernel.plugin_manager.register(CodeGeneratorPlugin())
     await kernel.plugin_manager.initialize_all()
 
     yield
