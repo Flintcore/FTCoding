@@ -11,6 +11,7 @@ from ftcoding.plugins.code_editor.plugin import CodeEditorPlugin
 from ftcoding.plugins.execution_env.plugin import ExecutionEnvPlugin
 from ftcoding.plugins.git_workflow.plugin import GitWorkflowPlugin
 from ftcoding.plugins.code_generator.plugin import CodeGeneratorPlugin
+from ftcoding.plugins.project_scaffold.plugin import ProjectScaffoldPlugin
 
 
 async def main():
@@ -30,6 +31,7 @@ async def main():
         kernel.plugin_manager.register(ExecutionEnvPlugin())
         kernel.plugin_manager.register(GitWorkflowPlugin())
         kernel.plugin_manager.register(CodeGeneratorPlugin())
+        kernel.plugin_manager.register(ProjectScaffoldPlugin())
         await kernel.plugin_manager.initialize_all()
 
         cron = CronEngine(kernel)
